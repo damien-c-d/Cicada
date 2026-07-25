@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 
 using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Styling;
 
 using Cicada.App.ViewModels;
 using Cicada.Core.Interop;
@@ -21,10 +23,23 @@ public partial class MainWindow : Window
 
     private IntPtr _WindowHandle;
     private HomeViewModel? _Home;
+    private bool _ThemeChangedFired;
+
+    /// <summary>DWMWA_SYSTEMBACKDROP_TYPE landed in Windows 11 22H2.</summary>
+    private static bool BackdropSupported => OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621);
 
     public MainWindow()
     {
         InitializeComponent();
+
+        if (BackdropSupported)
+        {
+            // Hand the whole window over to DWM and draw nothing behind our controls. Avalonia's own
+            // Mica/AcrylicBlur levels only cover the client area and land on a different shade to the
+            // title bar, which DWM paints - letting DWM do both is the only way they match.
+            TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
+            Background = Brushes.Transparent;
+        }
     }
 
     private HomeViewModel? Home
@@ -64,9 +79,78 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (BackdropSupported)
+        {
+            NativeMethods.SetWindowAttribute(_WindowHandle, NativeMethods.DWMWA_SYSTEMBACKDROP_TYPE, NativeMethods.DWMSBT_TRANSIENTWINDOW);
+        }
+
+        SyncTitleBarTheme();
+        ActualThemeVariantChanged += (_, _) => { _ThemeChangedFired = true; SyncTitleBarTheme(); };
+
+        if (Environment.GetEnvironmentVariable("CICADA_SELFCHECK") == "1")
+        {
+            RunThemeSelfCheck();
+        }
+
         Win32Properties.AddWndProcHookCallback(this, WndProcHook);
         NativeMethods.RegisterHotKey(_WindowHandle, CTRL_F12_HOTKEY, MOD_CONTROL, VK_F12);
         NativeMethods.RegisterHotKey(_WindowHandle, ALT_F12_HOTKEY, MOD_ALT, VK_F12);
+    }
+
+    /// <summary>
+    /// Checks that switching theme at runtime actually reaches the title bar. Set CICADA_SELFCHECK=1
+    /// to run it; it writes pass/fail to %TEMP%\cicada-selfcheck.txt, and exits with the failure count.
+    /// </summary>
+    private void RunThemeSelfCheck()
+    {
+        var app = Avalonia.Application.Current!;
+        var original = app.RequestedThemeVariant;
+        var log = new System.Text.StringBuilder();
+        var failures = 0;
+
+        // Start from a known variant so each step below is a real change - setting the variant
+        // it is already on raises nothing, which would make this check pass for the wrong reason.
+        app.RequestedThemeVariant = ThemeVariant.Dark;
+
+        foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark })
+        {
+            _ThemeChangedFired = false;
+            app.RequestedThemeVariant = variant;
+
+            if (!_ThemeChangedFired)
+            {
+                log.AppendLine($"FAIL: switching to {variant} did not raise ActualThemeVariantChanged");
+                failures++;
+            }
+            else if (ActualThemeVariant != variant)
+            {
+                log.AppendLine($"FAIL: requested {variant} but ActualThemeVariant is {ActualThemeVariant}");
+                failures++;
+            }
+        }
+
+        app.RequestedThemeVariant = original;
+        log.AppendLine(failures == 0 ? "PASS: title bar theme sync wired up" : $"{failures} failure(s)");
+        System.IO.File.WriteAllText(
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cicada-selfcheck.txt"),
+            log.ToString());
+        // Exiting straight from OnOpened wedges the startup path, so let it unwind first.
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => Environment.Exit(failures));
+    }
+
+    /// <summary>
+    /// DWM paints the title bar, so it doesn't follow the app's theme variant on its own -
+    /// without this, picking Light while Windows is in dark mode leaves a dark title bar.
+    /// </summary>
+    private void SyncTitleBarTheme()
+    {
+        if (_WindowHandle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        var isDark = ActualThemeVariant == ThemeVariant.Dark;
+        NativeMethods.SetWindowAttribute(_WindowHandle, NativeMethods.DWMWA_USE_IMMERSIVE_DARK_MODE, isDark ? 1 : 0);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

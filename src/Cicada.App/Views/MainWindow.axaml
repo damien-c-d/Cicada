@@ -7,12 +7,13 @@
     xmlns:vm="using:Cicada.App.ViewModels"
     Title="Cicada"
     Width="560"
-    Height="400"
+    Height="460"
     CanResize="False"
     WindowStartupLocation="CenterScreen"
     x:DataType="vm:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
+    <!--  Mica is set up in the code-behind - whether we can use it depends on the Windows version.  -->
 
     <Design.DataContext>
         <!--
@@ -22,6 +23,18 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <ContentControl Content="{Binding Content}" />
+    <Grid Margin="12,8,12,12" RowDefinitions="Auto,*">
+        <ComboBox
+            Grid.Row="0"
+            Width="110"
+            HorizontalAlignment="Right"
+            ItemsSource="{Binding Themes}"
+            SelectedItem="{Binding SelectedTheme}"
+            ToolTip.Tip="Application theme" />
+        <ContentControl
+            Grid.Row="1"
+            Margin="0,8,0,0"
+            Content="{Binding Content}" />
+    </Grid>
 
 </Window>

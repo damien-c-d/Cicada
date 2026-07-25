@@ -9,25 +9,25 @@
     d:DesignWidth="800"
     x:DataType="viewModels:HomeViewModel"
     mc:Ignorable="d">
-    <Grid RowDefinitions="*,*,*,Auto, Auto">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
         <HeaderedContentControl
             Grid.Row="0"
-            Margin="5"
+            Margin="0,0,0,14"
             Header="Click Type">
             <HeaderedContentControl.Content>
                 <StackPanel Orientation="Horizontal">
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Left Click"
                         GroupName="ClickType"
                         IsChecked="{Binding IsLeftClick}" />
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Right Click"
                         GroupName="ClickType"
                         IsChecked="{Binding IsRightClick}" />
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Middle Click"
                         GroupName="ClickType"
                         IsChecked="{Binding IsMiddleClick}" />
@@ -36,17 +36,17 @@
         </HeaderedContentControl>
         <HeaderedContentControl
             Grid.Row="1"
-            Margin="5"
+            Margin="0,0,0,14"
             Header="Repeat">
             <HeaderedContentControl.Content>
                 <StackPanel Orientation="Horizontal">
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Repeat Infinitely"
                         GroupName="RepeatType"
                         IsChecked="{Binding RepeatInfinitely}" />
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Set Count"
                         GroupName="RepeatType"
                         IsChecked="{Binding RepeatSetCount}" />
@@ -61,25 +61,25 @@
         </HeaderedContentControl>
         <HeaderedContentControl
             Grid.Row="2"
-            Margin="5"
+            Margin="0,0,0,14"
             Header="Click Amount">
             <HeaderedContentControl.Content>
                 <StackPanel Orientation="Horizontal">
                     <!--  Single  -->
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Single Click"
                         GroupName="ClickAmountType"
                         IsChecked="{Binding ClickAmountTypeSingle}" />
                     <!--  Double  -->
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Double Click"
                         GroupName="ClickAmountType"
                         IsChecked="{Binding ClickAmountTypeDouble}" />
                     <!--  Triple  -->
                     <RadioButton
-                        Margin="10"
+                        Margin="0,0,18,0"
                         Content="Triple Click"
                         GroupName="ClickAmountType"
                         IsChecked="{Binding ClickAmountTypeTriple}" />
@@ -88,7 +88,7 @@
         </HeaderedContentControl>
         <StackPanel
             Grid.Row="3"
-            Margin="5"
+            Margin="4,0,0,0"
             Orientation="Horizontal"
             VerticalAlignment="Center">
             <Label Content="Delay (in seconds):" VerticalAlignment="Center" />
@@ -101,7 +101,8 @@
         </StackPanel>
         <Grid
             Grid.Row="4"
-            Margin="5"
+            Margin="0,16,0,0"
+            VerticalAlignment="Bottom"
             ColumnDefinitions="*,10,*">
             <Button
                 Grid.Column="0"
