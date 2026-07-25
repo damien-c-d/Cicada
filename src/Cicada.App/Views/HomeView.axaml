@@ -9,7 +9,7 @@
     d:DesignWidth="800"
     x:DataType="viewModels:HomeViewModel"
     mc:Ignorable="d">
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto">
         <HeaderedContentControl
             Grid.Row="0"
             Margin="0,0,0,14"
@@ -102,7 +102,6 @@
         <Grid
             Grid.Row="4"
             Margin="0,16,0,0"
-            VerticalAlignment="Bottom"
             ColumnDefinitions="*,10,*">
             <Button
                 Grid.Column="0"
