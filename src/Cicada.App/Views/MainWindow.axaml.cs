@@ -81,7 +81,7 @@ public partial class MainWindow : Window
 
         if (BackdropSupported)
         {
-            NativeMethods.SetWindowAttribute(_WindowHandle, NativeMethods.DWMWA_SYSTEMBACKDROP_TYPE, NativeMethods.DWMSBT_TRANSIENTWINDOW);
+            NativeMethods.SetWindowAttribute(_WindowHandle, NativeMethods.DWMWA_SYSTEMBACKDROP_TYPE, NativeMethods.DWMSBT_MAINWINDOW);
         }
 
         SyncTitleBarTheme();
